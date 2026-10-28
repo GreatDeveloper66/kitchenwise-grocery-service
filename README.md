@@ -1,6 +1,6 @@
-# meal-plan-grocery-service
+# kitchenwise-grocery-service
 
-A microservice that discovers nearby grocery stores based on a user's location and search radius using the Google Places API. Part of the Meal Plan & Grocery Discovery application — a full-stack microservice architecture for personalized meal planning and local grocery store discovery.
+A microservice that discovers nearby grocery stores based on a user's location and search radius using the Google Places API. Part of the KitchenWise application — a full-stack microservice architecture for personalized meal planning and local grocery store discovery.
 
 ---
 
@@ -100,8 +100,8 @@ JWT_SECRET=your_jwt_secret
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/meal-plan-grocery-service.git
-cd meal-plan-grocery-service
+git clone https://github.com/GreatDeveloper66/kitchenwise-grocery-service.git
+cd kitchenwise-grocery-service
 npm install
 ```
 
@@ -129,14 +129,14 @@ npm start
 
 ## Project Architecture
 
-This service is one of six components in the Meal Plan & Grocery Discovery application:
+This repository is one of seven components in the KitchenWise application (six backend microservices plus the React frontend):
 
-| Service | Responsibility |
+| Repository | Responsibility |
 |---------|---------------|
-| user-auth-service | Authentication & JWT management |
-| meal-plan-diet-profile-service | Diet profile storage & management |
-| ai-meal-planner-backend | AI-powered meal plan generation |
-| meal-planner-user-meal-plan-service | User meal plan storage |
-| **meal-plan-grocery-service** | Grocery store discovery via Google API |
-| meal-plan-frontend | React frontend |
-| meal-planner-backend-for-frontend | BFF orchestration layer |
+| [kitchenwise-frontend](https://github.com/GreatDeveloper66/kitchenwise-frontend) | React + TypeScript frontend |
+| [user-auth-service](https://github.com/GreatDeveloper66/user-auth-service) | Authentication & JWT management |
+| [kitchenwise-diet-profile-service](https://github.com/GreatDeveloper66/kitchenwise-diet-profile-service) | Diet profile storage & management |
+| [kitchenwise-meal-plan-service](https://github.com/GreatDeveloper66/kitchenwise-meal-plan-service) | AI-powered meal plan generation |
+| [kitchenwise-plan-storage-service](https://github.com/GreatDeveloper66/kitchenwise-plan-storage-service) | User meal plan storage |
+| **[kitchenwise-grocery-service](https://github.com/GreatDeveloper66/kitchenwise-grocery-service)** | Grocery store discovery by location (Google Places) |
+| [kitchenwise-recipe-service](https://github.com/GreatDeveloper66/kitchenwise-recipe-service) | AI recipe generation |
