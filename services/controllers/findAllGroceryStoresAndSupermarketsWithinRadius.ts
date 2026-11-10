@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { Coordinates } from "../helpers/Coordinates";
 import { determineStoreHours } from '../helpers/hours-helper';
+import { GooglePlacesPhotoService } from '../helpers/google-places-photos';
 
 
 interface PlacesApiResponse {
@@ -87,26 +88,33 @@ export const findAllGroceryStoresAndSupermarketsWithinRadius = async (
             };
         }
 
-        // Process each place and generate photo URLs
-        const places = data.places.map((place: any) => {
-            // Generate photo URLs for each photo
-            const photos = place.photos?.map((photo: any) => {
-                // The photo.name is the full resource path
-                // We need to append '/media' to get the actual image
-                const photoUrl = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxWidthPx=400`;
+        const photoService = new GooglePlacesPhotoService();
 
-                return {
-                    // The URL to fetch the actual image
-                    url: photoUrl,
-                    // Original photo metadata
-                    name: photo.name,
-                    width: photo.widthPx,
-                    height: photo.heightPx,
-                    attributions: photo.authorAttributions,
-                    // Google Maps URI for the photo page
-                    googleMapsUri: photo.googleMapsUri
-                };
-            }) || [];
+        // Process each place and resolve its photo URL
+        const places = await Promise.all(data.places.map(async (place: any) => {
+            // Only the first photo: each lookup is a billable Places Photo request
+            const photo = place.photos?.[0];
+            const photos = [];
+            if (photo) {
+                // Resolve server-side to a short-lived googleusercontent URL so the API key never reaches the client.
+                // These URLs expire, so clients should display them, not store them.
+                const metadata = await photoService.getPhotoMetadata(photo.name);
+                if (metadata?.photoUri) {
+                    photos.push({
+                        // The URL to fetch the actual image
+                        url: metadata.photoUri,
+                        // Original photo metadata
+                        name: photo.name,
+                        width: photo.widthPx,
+                        height: photo.heightPx,
+                        attributions: photo.authorAttributions,
+                        // Google Maps URI for the photo page
+                        googleMapsUri: photo.googleMapsUri
+                    });
+                } else {
+                    log("Could not resolve photo URL", { placeId: place.id });
+                }
+            }
 
             // Determine open/closed status based on current time and operating hours
             // Determine current store hours status
@@ -132,8 +140,8 @@ export const findAllGroceryStoresAndSupermarketsWithinRadius = async (
                 userRatingCount: place.userRatingCount,
                 // Include the processed photos with URLs
                 photos: photos,
-                // Also include count of available photos
-                photoCount: photos.length,
+                // Count of photos Google has for the place (only the first is returned)
+                photoCount: place.photos?.length || 0,
                 priceLevel: place.priceLevel,
                 phoneNumber: place.internationalPhoneNumber,
                 website: place.websiteUri,
@@ -147,7 +155,7 @@ export const findAllGroceryStoresAndSupermarketsWithinRadius = async (
                     nextOpenTime: hoursStatus.nextOpenTime
                 },
             };
-        });
+        }));
 
         return {
             status: 200,
